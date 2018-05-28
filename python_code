@@ -1,0 +1,404 @@
+# imported classes for widget
+import sys
+import datetime
+from PyQt5 import QtWidgets as qw
+from PyQt5 import QtGui as qg
+from PyQt5 import QtCore as qc
+
+
+# imported classes for data
+import pyodbc as odbc
+import pandas as pd
+import numpy as np
+
+
+# APP
+class GUI(qw.QMainWindow):
+    # Add cls Variables here
+    cnxn = odbc.connect("Driver={SQL Server Native Client 11.0};"
+                        "Server=DESKTOP-D3UL9SD;"
+                        "Database=Rihend;"
+                        "Trusted_Connection=yes;")
+    # Open main window
+    def __init__(self):
+        qw.QMainWindow.__init__(self)
+
+        l = qw.QGridLayout(self)
+        self.title = 'Rihend'
+        self.top = 30
+        self.left = 0
+        self.width = 1000
+        self.height = 600
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left,self.top,self.width,self.height)
+        self.initAPP(l)
+        
+
+    # Adding widgets to main window
+    def initAPP(self, l):
+        menubar = self.menuBar()
+        overzicht_menu  = menubar.addMenu('Overzicht')
+        facturen_menu   = menubar.addMenu('Facturen')
+        inv_menu        = menubar.addMenu('Investeringen')
+        int_kosten_menu = menubar.addMenu('Interne Kosten')
+        ext_kosten_menu = menubar.addMenu('Externe Kosten')
+        staanpl_menu    = menubar.addMenu('Staanplaatsen')
+        stroom_menu     = menubar.addMenu('Stroom')
+        periode_menu    = menubar.addMenu('Periode')
+
+        #overzicht_menu
+        overzicht_totaal = qw.QAction('Totaal Overzicht', self)
+        overzicht_menu.addAction(overzicht_totaal)
+        overzicht_totaal.triggered.connect(self.overzicht_totaal)
+        
+        #facturen_menu
+        fact_overzicht = qw.QAction('Overzicht', self)
+        facturen_menu.addAction(fact_overzicht)
+        fact_overzicht.triggered.connect(self.fact_overzicht)
+
+        fact_invoer = qw.QAction('Invoeren', self)
+        facturen_menu.addAction(fact_invoer)
+        fact_invoer.triggered.connect(self.fact_invoer)
+
+        fact_update = qw.QAction('Aanpassen', self)
+        facturen_menu.addAction(fact_update)
+        fact_update.triggered.connect(self.fact_update)
+
+        #inv_menu
+        inv_overzicht = qw.QAction('Overzicht', self)
+        inv_menu.addAction(inv_overzicht)
+        inv_overzicht.triggered.connect(self.inv_overzicht)
+
+        inv_invoer = qw.QAction('Invoeren', self)
+        inv_menu.addAction(inv_invoer)
+        inv_invoer.triggered.connect(self.inv_invoer)
+
+        inv_update = qw.QAction('Aanpassen', self)
+        inv_menu.addAction(inv_update)
+        inv_update.triggered.connect(self.inv_update)
+
+        #int_kosten_menu
+        int_kosten_overzicht = qw.QAction('Overzicht', self)
+        int_kosten_menu.addAction(int_kosten_overzicht)
+        int_kosten_overzicht.triggered.connect(self.int_kosten_overzicht)
+
+        int_kosten_invoer = qw.QAction('Invoer', self)
+        int_kosten_menu.addAction(int_kosten_invoer)
+        int_kosten_invoer.triggered.connect(self.int_kosten_invoer)
+
+        int_kosten_update = qw.QAction('Aanpassen', self)
+        int_kosten_menu.addAction(int_kosten_update)
+        int_kosten_update.triggered.connect(self.int_kosten_update)
+
+        #ext_kosten_menu
+        ext_kosten_overzicht = qw.QAction('Overzicht', self)
+        ext_kosten_menu.addAction(ext_kosten_overzicht)
+        ext_kosten_overzicht.triggered.connect(self.ext_kosten_overzicht)
+
+        ext_kosten_invoer = qw.QAction('Invoer', self)
+        ext_kosten_menu.addAction(ext_kosten_invoer)
+        ext_kosten_invoer.triggered.connect(self.ext_kosten_invoer)
+
+        ext_kosten_update = qw.QAction('Aanpassen', self)
+        ext_kosten_menu.addAction(ext_kosten_update)
+        ext_kosten_update.triggered.connect(self.ext_kosten_update)
+
+        #staanpl_menu
+        staanpl_overzicht = qw.QAction('Overzicht', self)
+        staanpl_menu.addAction(staanpl_overzicht)
+        staanpl_overzicht.triggered.connect(self.staanpl_overzicht)
+
+        staanpl_update = qw.QAction('Aanpassen', self)
+        staanpl_menu.addAction(staanpl_update)
+        staanpl_update.triggered.connect(self.staanpl_update)
+
+        #stroom_menu
+        stroomkosten_overzicht = qw.QAction('Kosten Overzicht', self)
+        stroom_menu.addAction(stroomkosten_overzicht)
+        stroomkosten_overzicht.triggered.connect(self.stroomkosten_overzicht)
+
+        stroomverbruik_overzicht = qw.QAction('Verbruik Overzicht', self)
+        stroom_menu.addAction(stroomverbruik_overzicht)
+        stroomverbruik_overzicht.triggered.connect(self.stroomverbruik_overzicht)
+
+        stroomperkwh_overzicht = qw.QAction('Kosten per KWH', self)
+        stroom_menu.addAction(stroomperkwh_overzicht)
+        stroomperkwh_overzicht.triggered.connect(self.stroomperkwh_overzicht)
+
+        stroom_doorrekenen = qw.QAction('Kosten doorrekenen naar extern', self)
+        stroom_menu.addAction(stroom_doorrekenen)
+        stroom_doorrekenen.triggered.connect(self.stroom_doorrekenen)
+
+        #periode_menu
+        periode_overzicht = qw.QAction('Overzicht', self)
+        periode_menu.addAction(periode_overzicht)
+        periode_menu.triggered.connect(self.periode_overzicht)
+
+        periode_update = qw.QAction('Aanpassen', self)
+        periode_menu.addAction(periode_update)
+        periode_update.triggered.connect(self.periode_update)
+
+        periode_doorrekenen = qw.QAction('Doorrekenen', self)
+        periode_menu.addAction(periode_doorrekenen)
+        periode_doorrekenen.triggered.connect(self.periode_doorrekenen)
+
+        #table
+        self.table = qw.QTableWidget(self)
+        self.table.setRowCount(5)
+        self.table.setColumnCount(7)
+
+        self.tablewidth = self.table.columnCount()*102.5
+        self.table.setGeometry(qc.QRect(20,55,self.tablewidth,500))
+
+
+        self.show()
+
+    # Adding functions
+
+    #overzicht
+    def overzicht_totaal(self):
+        sql_overzicht_totaal = "select * from overzicht_totaal order by jaar desc"
+        df_overzicht_totaal = pd.read_sql(sql_overzicht_totaal, GUI.cnxn)
+        self.create_table(df_overzicht_totaal)
+
+    #fact
+    def fact_overzicht(self):
+        sql_fact_overzicht =  "select * from overzicht_factuur order by periode desc"
+        df_fact_overzicht = pd.read_sql(sql_fact_overzicht, GUI.cnxn)
+        self.create_table(df_fact_overzicht)
+
+    def fact_invoer(self):
+        pass
+
+    def fact_update(self):
+        pass
+
+    #inv
+    def inv_overzicht(self):
+        sql_inv_overzicht = "select * from overzicht_investeringen order by periode desc"
+        df_inv_overzicht = pd.read_sql(sql_inv_overzicht, GUI.cnxn)
+        self.create_table(df_inv_overzicht)
+
+    def inv_invoer(self):
+        pass
+
+    def inv_update(self):
+        pass
+    
+    #int_kosten
+    def int_kosten_overzicht(self):
+        sql_int_kosten = "select * from overzicht_interne_kosten order by periode desc"
+        df_int_kosten = pd.read_sql(sql_int_kosten, GUI.cnxn)
+        self.create_table(df_int_kosten)       
+
+    def int_kosten_invoer(self):
+        pass
+
+    def int_kosten_update(self):
+        pass
+
+    #ext_kosten
+    def ext_kosten_overzicht(self):
+        sql_ext_kosten = "select * from overzicht_externe_kosten order by periode desc"
+        df_ext_kosten = pd.read_sql(sql_ext_kosten, GUI.cnxn)
+        self.create_table(df_ext_kosten)   
+
+    def ext_kosten_invoer(self):
+        pass
+
+    def ext_kosten_update(self):
+        pass
+
+    #staanpl
+    def staanpl_overzicht(self):
+        sql_staanpl = "select * from overzicht_staanplaats order by staanplaats_ID"
+        df_staanpl = pd.read_sql(sql_staanpl, GUI.cnxn)
+        self.create_table(df_staanpl)
+
+    def staanpl_update(self):
+        self.dialog = STAANPL()
+        self.dialog.show()
+
+    #stroom
+    def stroomkosten_overzicht(self):
+        sql_strkosten = "select * from overzicht_stroomkosten order by periode"
+        df_strkosten = pd.read_sql(sql_strkosten, GUI.cnxn)
+        self.create_table(df_strkosten)
+
+    def stroomverbruik_overzicht(self):
+        sql_strverbruik = "select * from overzicht_stroomverbruik order by periode"
+        df_strverbruik = pd.read_sql(sql_strverbruik, GUI.cnxn)
+        self.create_table(df_strverbruik)
+    
+    def stroomperkwh_overzicht(self):
+        sql_perkwh = "select * from overzicht_perkwh order by periode"
+        df_perkwh = pd.read_sql(sql_perkwh, GUI.cnxn)
+        self.create_table(df_perkwh)
+
+    def stroom_doorrekenen(self):
+        cursor = GUI.cnxn.cursor()
+        cursor.execute("{CALL rihend_doorrekenen_stroomkosten}")
+        cursor.commit()
+    
+    #periode
+    def periode_overzicht(self):
+        sql_periode = "select * from periode"
+        df_periode = pd.read_sql(sql_periode, GUI.cnxn)
+        self.create_table(df_periode)
+        
+    def periode_update(self):
+        pass
+
+    def periode_doorrekenen(self):
+        pass
+
+    # creating table from dataframe
+    def create_table(self, df_main):
+        column_header = list(df_main.columns)
+        column = 0
+        self.table.setColumnCount(df_main.shape[1]) 
+        self.table.setRowCount(df_main.shape[0])
+        
+        for i in column_header:
+            row = 0
+            for j in df_main[i]:
+                if str(j) != 'nan':
+                    newitem = qw.QTableWidgetItem(str(j))
+                    self.table.setItem(row, column, newitem)
+                else:
+                    empty = qw.QTableWidgetItem('')
+                    self.table.setItem(row, column, empty)
+                row = row + 1
+            column = column + 1
+        # adjust amount of columns in table
+        self.table.setColumnCount(len(column_header))
+        # add headers to table
+        self.table.setHorizontalHeaderLabels(column_header)
+
+
+
+# Staanplaatsen class
+class STAANPL(qw.QWidget):
+    # cls var
+    cnxn = odbc.connect("Driver={SQL Server Native Client 11.0};"
+                        "Server=DESKTOP-D3UL9SD;"
+                        "Database=Rihend;"
+                        "Trusted_Connection=yes;")
+    
+    list_ja_nee = ["Nee","Ja"]
+
+    sql_periode = 'Select * from Periode'
+    df_periode = pd.read_sql(sql_periode, cnxn)
+    df_periode2 = df_periode['Omschrijving']
+    
+    # start widget STAANPL
+    def __init__(self):
+        super().__init__()
+
+        l = qw.QGridLayout(self)
+
+        self.title = 'Aanpassen Staanplaats'
+        self.top = 300
+        self.left = 300
+        self.width = 300
+        self.height = 200
+        
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.top,self.left,self.width,self.height)
+
+        sql_staanpl_id = 'Select Staanplaats_ID from Staanplaatsen'
+        df_staanpl_id = pd.read_sql(sql_staanpl_id, STAANPL.cnxn)
+        df_staanpl_id = df_staanpl_id['Staanplaats_ID']
+
+        #qbox met staanplaats_ID
+        self.staanplaats_label = qw.QLabel(self)
+        self.staanplaats_label.setText('Staanplaats_ID')
+        l.addWidget(self.staanplaats_label ,0,0)
+        
+        self.staanplaats_box = qw.QComboBox(self)
+        l.addWidget(self.staanplaats_box ,0,1)
+        for i in range(len(df_staanpl_id)):
+            self.staanplaats_box.addItem(str(df_staanpl_id[i])) 
+            
+        #qbox met gerealiseerd
+        self.gerealiseerd_label = qw.QLabel(self)
+        self.gerealiseerd_label.setText('Gerealiseerd')
+        l.addWidget(self.gerealiseerd_label ,1,0)
+
+        self.gerealiseerd_box = qw.QComboBox(self)
+        l.addWidget(self.gerealiseerd_box ,1,1)
+        for i in range(len(STAANPL.list_ja_nee)):
+            self.gerealiseerd_box.addItem(STAANPL.list_ja_nee[i])
+
+        self.periode_real_label = qw.QLabel(self)
+        self.periode_real_label.setText('Periode')
+        l.addWidget(self.periode_real_label ,1,2)
+
+        self.periode_real_box = qw.QComboBox(self)
+        l.addWidget(self.periode_real_box ,1,3)
+        for i in range(len(STAANPL.df_periode2)):
+            self.periode_real_box.addItem(STAANPL.df_periode2[i])
+
+        #qbox met verkocht
+        self.verkocht_label = qw.QLabel(self)
+        self.verkocht_label.setText('Verkocht')
+        l.addWidget(self.verkocht_label ,2,0)
+
+        self.verkocht_box = qw.QComboBox(self)
+        l.addWidget(self.verkocht_box ,2,1)
+        for i in range(len(STAANPL.list_ja_nee)):
+            self.verkocht_box.addItem(STAANPL.list_ja_nee[i])
+
+        self.periode_verk_label = qw.QLabel(self)
+        self.periode_verk_label.setText('Periode')
+        l.addWidget(self.periode_verk_label ,2,2)
+
+        self.periode_verk_box = qw.QComboBox(self)
+        l.addWidget(self.periode_verk_box ,2,3)
+        for i in range(len(STAANPL.df_periode2)):
+            self.periode_verk_box.addItem(STAANPL.df_periode2[i])
+
+        #button to update and close
+        self.aanpassen_knop = qw.QPushButton('Update', self)
+        l.addWidget(self.aanpassen_knop ,0,3)
+        self.aanpassen_knop.clicked.connect(self.update_and_close)
+        
+        self.show()
+
+    #update staanplaatsen en sluit venster
+    def update_and_close(self):
+        cursor = STAANPL.cnxn.cursor()
+
+        Staanplaats_ID = self.staanplaats_box.currentText()
+        
+        Gerealiseerd = self.gerealiseerd_box.currentText()
+        if Gerealiseerd == "Ja":
+            Gerealiseerd = "1"
+        else:
+            Gerealiseerd = "0"
+        Gerealiseerd_Periode = self.periode_real_box.currentText()
+        Gerealiseerd_Periode = STAANPL.df_periode[STAANPL.df_periode['Omschrijving'] == str(Gerealiseerd_Periode)]['Periode_ID'].values
+        Gerealiseerd_Periode = list(Gerealiseerd_Periode)
+        
+        Verkocht = self.verkocht_box.currentText()
+        if Verkocht == "Ja":
+            Verkocht = "1"
+        else:
+            Verkocht = "0"
+        Verkocht_Periode = self.periode_verk_box.currentText()
+        Verkocht_Periode = STAANPL.df_periode[STAANPL.df_periode['Omschrijving'] == str(Verkocht_Periode)]['Periode_ID'].values
+        Verkocht_Periode = list(Verkocht_Periode)
+
+        
+        params = (Staanplaats_ID,Gerealiseerd,str(Gerealiseerd_Periode[0]),Verkocht,str(Verkocht_Periode[0]))
+        cursor.execute("{CALL update_staanplaatsen (?,?,?,?,?)}",params)
+        cursor.commit()
+        self.close()
+
+
+
+  
+# Start APP
+App = qw.QApplication(sys.argv)
+W = GUI()
+sys.exit(App.exec)
