@@ -60,9 +60,9 @@ class GUI(qw.QMainWindow):
         facturen_menu.addAction(fact_invoer)
         fact_invoer.triggered.connect(self.fact_invoer)
 
-        fact_update = qw.QAction('Aanpassen', self)
-        facturen_menu.addAction(fact_update)
-        fact_update.triggered.connect(self.fact_update)
+        fact_delete = qw.QAction('Verwijderen', self)
+        facturen_menu.addAction(fact_delete)
+        fact_delete.triggered.connect(self.fact_delete)
 
         #inv_menu
         inv_overzicht = qw.QAction('Overzicht', self)
@@ -185,8 +185,16 @@ class GUI(qw.QMainWindow):
         self.dialog = FACT_INVOEREN()
         self.dialog.show()
 
-    def fact_update(self):
-        pass
+    def fact_delete(self):
+        sql_fact_id = "select Factuur_ID from facturen"
+        df_fact_id = pd.read_sql(sql_fact_id, GUI.cnxn)
+        l_fact_id = []
+        for i in df_fact_id['Factuur_ID']:
+            l_fact_id.append(str(i))
+            
+        item, ok = qw.QInputDialog.getItem(self, "Facturen", "Factuur_ID: ", l_fact_id , 0, False)
+        if ok and item:
+            return item
 
     #inv
     def inv_overzicht(self):
@@ -646,15 +654,26 @@ class STR_INVOEREN(qw.QWidget):
         self.table.setHorizontalHeaderLabels(column_header)
 
 # FACT_INVOEREN Class
-class FACT_INVOEREN(qw.QMainWindow):
+class FACT_INVOEREN(qw.QWidget):
     # Add cls Variables here
     cnxn = odbc.connect("Driver={SQL Server Native Client 11.0};"
                         "Server=DESKTOP-D3UL9SD;"
                         "Database=Rihend;"
                         "Trusted_Connection=yes;")
+    
+    sql_hoofd = "select Omschrijving from Hoofdniveau_Omschrijving"
+    df_hoofd = pd.read_sql(sql_hoofd, cnxn)
+    df_hoofd = df_hoofd['Omschrijving']
+
+    sql_periode = "select Omschrijving from Periode where Periode_ID > 6"
+    df_periode = pd.read_sql(sql_periode, cnxn)
+    df_periode = df_periode['Omschrijving']
+
     # Open main window
     def __init__(self):
-        qw.QMainWindow.__init__(self)
+        super().__init__()
+
+        l = qw.QGridLayout(self)
         
         self.title = 'Facturen Invoeren'
         self.top = 30
@@ -663,40 +682,124 @@ class FACT_INVOEREN(qw.QMainWindow):
         self.height = 300
         self.setWindowTitle(self.title)
         self.setGeometry(self.left,self.top,self.width,self.height)
-        self.initAPP()
-        
 
-    # Adding widgets to main window
-    def initAPP(self):
         #table
         self.table = qw.QTableWidget(self)
         self.table.setRowCount(20)
         self.table.setColumnCount(5)
-
-        self.tablewidth = self.table.columnCount()*102.5
-        self.table.setGeometry(qc.QRect(20,55,self.tablewidth,500))
-
-        #menubar
-        menubar = self.menuBar()
-        overzicht_menu  = menubar.addMenu('Tabel')
+        self.table.setFixedHeight(150)
+        self.table.setFixedWidth(512.5)
+        l.addWidget(self.table ,1,2,3,1)
         
-        remove_row = qw.QAction('Rij verwijderen', self)
-        overzicht_menu.addAction(remove_row)
-        remove_row.triggered.connect(self.remove_row)
+        #combobox hoofdniveau
+        self.hoofd_label = qw.QLabel(self)
+        self.hoofd_label.setText('Hoofdniveau')
+        l.addWidget(self.hoofd_label ,1,0)
+        
+        self.hoofd_box = qw.QComboBox(self)
+        for i in range(len(FACT_INVOEREN.df_hoofd)):
+            self.hoofd_box.addItem(FACT_INVOEREN.df_hoofd[i])
+        self.hoofd_box.activated[str].connect(self.sub_box_fill)
+        l.addWidget(self.hoofd_box ,1,1)
+        
+        #combobox subniveau
+        self.sub_label = qw.QLabel(self)
+        self.sub_label.setText('Subniveau')
+        l.addWidget(self.sub_label ,3,0)
+        
+        self.sub_box = qw.QComboBox(self)
+        self.sub_box.resize(300,30)
+        l.addWidget(self.sub_box ,3,1)
+        self.sub_box.activated[str].connect(self.create_df_main)
 
-        duplicate_row = qw.QAction('Rij dupliceren', self)
-        overzicht_menu.addAction(duplicate_row)
-        duplicate_row.triggered.connect(self.duplicate_row)
+        #combobox periode
+        self.periode_label = qw.QLabel(self)
+        self.periode_label.setText('Periode')
+        l.addWidget(self.periode_label ,2,0)
+        
+        self.periode_box = qw.QComboBox(self)
+        l.addWidget(self.periode_box ,2,1)
+        for i in range(len(FACT_INVOEREN.df_periode)):
+            self.periode_box.addItem(FACT_INVOEREN.df_periode[i])
+
+        #button invoeren
+        self.insert_button = qw.QPushButton('Invoeren', self)
+        l.addWidget(self.insert_button ,0,0)
+        self.insert_button.clicked.connect(self.invoeren_facturen)
+
+        #button rij-verwijderen
+        self.remove_button = qw.QPushButton('Rij verwijderen', self)
+        l.addWidget(self.remove_button ,0,2)
+        self.remove_button.clicked.connect(self.remove_row)
+
 
         self.show()
 
+    #subniveau selectie
+    def sub_box_fill(self, hn):
+        self.sub_box.clear
+        #hn = hn.replace("'", "")
+        sql_sub_box = "select sn.Omschrijving as Omschrijving \
+                           from Subniveau sn \
+                           inner join Hoofdniveau_Omschrijving hn on hn.Hoofdniveau_ID = sn.Ouder_hoofdniveau \
+		           where hn.Omschrijving = '" + str(hn) + "'"
+        df_sub_box = pd.read_sql(sql_sub_box, FACT_INVOEREN.cnxn)
+        df_sub_box = df_sub_box['Omschrijving']
+        for i in range(len(df_sub_box)):
+            self.sub_box.addItem(df_sub_box[i])
+            
+    #df_main generen
+    def create_df_main(self, sn):
+        periode = self.periode_box.currentText()
+
+        sn = sn.replace("'", "")
+
+        sql_main = "select    kc.Categorie_Omschrijving as [Categorie omschrijving]\
+                             ,'"+ str(periode) + "'  as [Periode]\
+                             ,1.0 as [Meenemen]\
+                             ,0 as [Extern Factuur Nummer]\
+                             ,0 as [Factuur Datum]\
+                             ,0   as [Bedrag]\
+                         from Facturen as fc\
+                         inner join Kosten_Categorie kc on fc.Categorie_ID = kc.Categorie_ID\
+                         inner join Subniveau sn on sn.Subniveau_ID = kc.Niveau\
+                         inner join Periode pr on pr.Periode_ID = fc.Periode_ID\
+                         where sn.Omschrijving = '" + str(sn) + "'"
+        df_main = pd.read_sql(sql_main, FACT_INVOEREN.cnxn)
+        self.create_table(df_main)
+
+    # functie invoeren facturen
+    def invoeren_facturen(self):
+        self.close()
+        
+
     #functie verwijderen rij
     def remove_row(self):
-        pass
+        self.table.removeRow(self.table.currentRow())
 
-    def duplicate_row(self):
-        pass
-  
+    # creating table from dataframe
+    def create_table(self, df_main):
+        column_header = list(df_main.columns)
+        column = 0
+        self.table.setColumnCount(df_main.shape[1]) 
+        self.table.setRowCount(df_main.shape[0])
+        
+        for i in column_header:
+            row = 0
+            for j in df_main[i]:
+                if str(j) != 'nan':
+                    newitem = qw.QTableWidgetItem(str(j))
+                    self.table.setItem(row, column, newitem)
+                else:
+                    empty = qw.QTableWidgetItem('')
+                    self.table.setItem(row, column, empty)
+                row = row + 1
+            column = column + 1
+        # adjust amount of columns in table
+        self.table.setColumnCount(len(column_header))
+        # add headers to table
+        self.table.setHorizontalHeaderLabels(column_header)
+        
 # Start APP
 App = qw.QApplication(sys.argv)
 W = GUI()
