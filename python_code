@@ -73,9 +73,13 @@ class GUI(qw.QMainWindow):
         inv_menu.addAction(inv_invoer)
         inv_invoer.triggered.connect(self.inv_invoer)
 
-        inv_update = qw.QAction('Aanpassen', self)
-        inv_menu.addAction(inv_update)
-        inv_update.triggered.connect(self.inv_update)
+        inv_doorrekenen = qw.QAction('Doorrekenen', self)
+        inv_menu.addAction(inv_doorrekenen)
+        inv_doorrekenen.triggered.connect(self.inv_doorrekenen)
+
+        inv_delete = qw.QAction('Verwijderen', self)
+        inv_menu.addAction(inv_delete)
+        inv_delete.triggered.connect(self.inv_delete)
 
         #int_kosten_menu
         int_kosten_overzicht = qw.QAction('Overzicht', self)
@@ -86,9 +90,9 @@ class GUI(qw.QMainWindow):
         int_kosten_menu.addAction(int_kosten_invoer)
         int_kosten_invoer.triggered.connect(self.int_kosten_invoer)
 
-        int_kosten_update = qw.QAction('Aanpassen', self)
-        int_kosten_menu.addAction(int_kosten_update)
-        int_kosten_update.triggered.connect(self.int_kosten_update)
+        int_kosten_delete = qw.QAction('Verwijderen', self)
+        int_kosten_menu.addAction(int_kosten_delete)
+        int_kosten_delete.triggered.connect(self.int_kosten_delete)
 
         #ext_kosten_menu
         ext_kosten_overzicht = qw.QAction('Overzicht', self)
@@ -99,9 +103,9 @@ class GUI(qw.QMainWindow):
         ext_kosten_menu.addAction(ext_kosten_invoer)
         ext_kosten_invoer.triggered.connect(self.ext_kosten_invoer)
 
-        ext_kosten_update = qw.QAction('Aanpassen', self)
-        ext_kosten_menu.addAction(ext_kosten_update)
-        ext_kosten_update.triggered.connect(self.ext_kosten_update)
+        ext_kosten_delete = qw.QAction('Verwijderen', self)
+        ext_kosten_menu.addAction(ext_kosten_delete)
+        ext_kosten_delete.triggered.connect(self.ext_kosten_delete)
 
         #staanpl_menu
         staanpl_overzicht = qw.QAction('Overzicht', self)
@@ -152,10 +156,6 @@ class GUI(qw.QMainWindow):
         periode_menu.addAction(periode_update)
         periode_update.triggered.connect(self.periode_update)
 
-        periode_doorrekenen = qw.QAction('Doorrekenen', self)
-        periode_menu.addAction(periode_doorrekenen)
-        periode_doorrekenen.triggered.connect(self.periode_doorrekenen)
-
         #table
         self.table = qw.QTableWidget(self)
         self.table.setRowCount(20)
@@ -193,9 +193,17 @@ class GUI(qw.QMainWindow):
             l_fact_id.append(str(i))
             
         item, ok = qw.QInputDialog.getItem(self, "Facturen", "Factuur_ID: ", l_fact_id , 0, False)
-        if ok and item:
-            return item
+        if ok:
+            return self.remove_fact(item)
 
+    def remove_fact(self,item):
+        cursor = GUI.cnxn.cursor()
+        sql_ver_fact = "delete from Facturen where Factuur_ID =" + str(item)
+        cursor.execute(str(sql_ver_fact))
+        cursor.commit()
+
+        
+        
     #inv
     def inv_overzicht(self):
         sql_inv_overzicht = "select * from overzicht_investeringen order by periode desc"
@@ -205,8 +213,28 @@ class GUI(qw.QMainWindow):
     def inv_invoer(self):
         pass
 
-    def inv_update(self):
-        pass
+    def inv_doorrekenen(self):
+        self.dialog = INV_DOORREKENEN()
+        self.dialog.show()
+
+    def inv_delete(self):
+        sql_inv_id = "select Investering_ID from Investering"
+        df_inv_id = pd.read_sql(sql_inv_id, GUI.cnxn)
+        l_inv_id = []
+        for i in df_inv_id['Investering_ID']:
+            l_inv_id.append(str(i))
+            
+        item, ok = qw.QInputDialog.getItem(self, "Investeringen", "Investering_ID: ", l_inv_id , 0, False)
+        if ok:
+            return self.remove_inv(item)
+
+    def remove_inv(self,item):
+        cursor = GUI.cnxn.cursor()
+        sql_ver_inv = "delete from Investering where Investering_ID =" + str(item)
+        cursor.execute(str(sql_inv_fact))
+        cursor.commit()
+
+
     
     #int_kosten
     def int_kosten_overzicht(self):
@@ -217,8 +245,22 @@ class GUI(qw.QMainWindow):
     def int_kosten_invoer(self):
         pass
 
-    def int_kosten_update(self):
-        pass
+    def int_kosten_delete(self):
+        sql_int_id = "select Interne_Kosten_ID from Interne_Kosten"
+        df_int_id = pd.read_sql(sql_int_id, GUI.cnxn)
+        l_int_id = []
+        for i in df_int_id['Interne_Kosten_ID']:
+            l_int_id.append(str(i))
+            
+        item, ok = qw.QInputDialog.getItem(self, "Interne Kosten", "Interne_Kosten_ID: ", l_int_id , 0, False)
+        if ok:
+            return self.remove_int(item)
+
+    def remove_int(self,item):
+        cursor = GUI.cnxn.cursor()
+        sql_ver_int = "delete from Interne_Kosten where Interne_Kosten_ID =" + str(item)
+        cursor.execute(str(sql_ver_int))
+        cursor.commit()
 
     #ext_kosten
     def ext_kosten_overzicht(self):
@@ -229,8 +271,22 @@ class GUI(qw.QMainWindow):
     def ext_kosten_invoer(self):
         pass
 
-    def ext_kosten_update(self):
-        pass
+    def ext_kosten_delete(self):
+        sql_ext_id = "select Externe_Kosten_ID from Externe_Kosten"
+        df_ext_id = pd.read_sql(sql_ext_id, GUI.cnxn)
+        l_ext_id = []
+        for i in df_ext_id['Externe_Kosten_ID']:
+            l_ext_id.append(str(i))
+            
+        item, ok = qw.QInputDialog.getItem(self, "Externe Kosten", "Externe_Kosten_ID: ", l_ext_id , 0, False)
+        if ok:
+            return self.remove_ext(item)
+
+    def remove_ext(self,item):
+        cursor = GUI.cnxn.cursor()
+        sql_ver_ext = "delete from Externe_Kosten where Externe_Kosten_ID =" + str(item)
+        cursor.execute(str(sql_ver_ext))
+        cursor.commit()
 
     #staanpl
     def staanpl_overzicht(self):
@@ -305,9 +361,6 @@ class GUI(qw.QMainWindow):
     def periode_update(self):
         self.dialog = PERIODE()
         self.dialog.show()
-
-    def periode_doorrekenen(self):
-        pass
 
     # creating table from dataframe
     def create_table(self, df_main):
@@ -799,6 +852,77 @@ class FACT_INVOEREN(qw.QWidget):
         self.table.setColumnCount(len(column_header))
         # add headers to table
         self.table.setHorizontalHeaderLabels(column_header)
+
+class INV_DOORREKENEN(qw.QWidget):
+    # Add cls Variables here
+    cnxn = odbc.connect("Driver={SQL Server Native Client 11.0};"
+                        "Server=DESKTOP-D3UL9SD;"
+                        "Database=Rihend;"
+                        "Trusted_Connection=yes;")
+
+    sql_inv = "Select Investering_Omschrijving from Investering"
+    df_inv = pd.read_sql(sql_inv, cnxn)
+    df_inv = df_inv['Investering_Omschrijving']
+
+    sql_periode = "Select Omschrijving from Periode"
+    df_periode = pd.read_sql(sql_periode, cnxn)
+    df_periode = df_periode['Omschrijving']
+    
+    # Open main window
+    def __init__(self):
+        super().__init__()
+
+        l = qw.QGridLayout(self)
+        
+        self.title = 'Investeringen Doorrekenen'
+        self.top = 30
+        self.left = 0
+        self.width = 600
+        self.height = 300
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left,self.top,self.width,self.height)
+
+        #Combobox investering
+        self.inv_label = qw.QLabel(self)
+        self.inv_label.setText('Investering')
+        l.addWidget(self.inv_label ,1,0)
+        
+        self.inv_box = qw.QComboBox(self)
+        for i in range(len(INV_DOORREKENEN.df_inv)):
+            self.inv_box.addItem(INV_DOORREKENEN.df_inv[i])
+        l.addWidget(self.inv_box ,1,1)
+        
+        #Combobox periode
+        self.periode_label = qw.QLabel(self)
+        self.periode_label.setText('Periode')
+        l.addWidget(self.periode_label ,2,0)
+        
+        self.periode_box = qw.QComboBox(self)
+        for i in range(len(INV_DOORREKENEN.df_periode)):
+            self.periode_box.addItem(INV_DOORREKENEN.df_periode[i])
+        l.addWidget(self.periode_box ,2,1)
+
+        #Pushbutton Doorrekenen
+        self.doorreken_button = qw.QPushButton('Doorrekenen', self)
+        l.addWidget(self.doorreken_button ,0,0)
+        self.doorreken_button.clicked.connect(self.doorrekenen)
+
+        self.show()
+
+    def doorrekenen(self):
+        cursor = INV_DOORREKENEN.cnxn.cursor()
+        
+        periode = str(self.periode_box.currentText())
+        investering = str(self.inv_box.currentText())
+
+        params = (str(periode), str(investering))
+        cursor.execute("{CALL doorrekenen_investering (?,?)}",params)
+        cursor.commit()
+
+        self.close()
+
+            
+
         
 # Start APP
 App = qw.QApplication(sys.argv)
