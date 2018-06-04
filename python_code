@@ -163,6 +163,7 @@ class GUI(qw.QMainWindow):
 
         self.tablewidth = self.table.columnCount()*102.5
         self.table.setGeometry(qc.QRect(20,55,self.tablewidth,500))
+        self.table.cellClicked.connect(self.cell_was_clicked)
 
 
         self.show()
@@ -211,7 +212,8 @@ class GUI(qw.QMainWindow):
         self.create_table(df_inv_overzicht)
 
     def inv_invoer(self):
-        pass
+        self.dialog = INV_INVOEREN()
+        self.dialog.show()
 
     def inv_doorrekenen(self):
         self.dialog = INV_DOORREKENEN()
@@ -231,7 +233,7 @@ class GUI(qw.QMainWindow):
     def remove_inv(self,item):
         cursor = GUI.cnxn.cursor()
         sql_ver_inv = "delete from Investering where Investering_ID =" + str(item)
-        cursor.execute(str(sql_inv_fact))
+        cursor.execute(str(sql_ver_inv))
         cursor.commit()
 
 
@@ -385,7 +387,28 @@ class GUI(qw.QMainWindow):
         # add headers to table
         self.table.setHorizontalHeaderLabels(column_header)
 
-
+    # tabel doorklikken naar subniveau
+    def cell_was_clicked(self, row, column):
+        if str(self.table.horizontalHeaderItem(0).text()) == 'Specificatie':
+            if column == 0:
+                hn = self.table.item(row,column).text()
+                periode =  self.table.item(row, column + 1).text()
+                sql_subniveau = "select * \
+                                        from overzicht_subniveau \
+                                        where Specificatie_Hoofdniveau = '" + str(hn) + "'\
+                                        and Jaar = '" + str(periode) + "'"
+                df_subniveau = pd.read_sql(sql_subniveau, GUI.cnxn)
+                self.create_table(df_subniveau)
+        if str(self.table.horizontalHeaderItem(1).text()) == 'Specificatie_Subniveau':
+            if column == 1:
+                sn = self.table.item(row,column).text()
+                periode = self.table.item(row, column + 1).text()
+                sql_kc = "select * \
+                                 from overzicht_kosten_categorie \
+                                 where Specificatie_Subniveau = '" + str(sn) + "'\
+                                 and Jaar = '" + str(periode) + "'"
+                df_kc = pd.read_sql(sql_kc, GUI.cnxn)
+                self.create_table(df_kc)
 
 # Staanplaatsen class
 class STAANPL(qw.QWidget):
@@ -920,6 +943,172 @@ class INV_DOORREKENEN(qw.QWidget):
         cursor.commit()
 
         self.close()
+
+class INV_INVOEREN(qw.QWidget):
+    # Add cls Variables here
+    cnxn = odbc.connect("Driver={SQL Server Native Client 11.0};"
+                        "Server=DESKTOP-D3UL9SD;"
+                        "Database=Rihend;"
+                        "Trusted_Connection=yes;")
+    
+    sql_periode = "Select Omschrijving from Periode"
+    df_periode = pd.read_sql(sql_periode, cnxn)
+    df_periode = df_periode['Omschrijving']
+
+    sql_hoofd = "select Omschrijving from Hoofdniveau_Omschrijving"
+    df_hoofd = pd.read_sql(sql_hoofd, cnxn)
+    df_hoofd = df_hoofd['Omschrijving']
+    
+    # Open main window
+    def __init__(self):
+        super().__init__()
+
+        l = qw.QGridLayout(self)
+        
+        self.title = 'Investeringen Invoeren'
+        self.top = 30
+        self.left = 0
+        self.width = 600
+        self.height = 300
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left,self.top,self.width,self.height)
+
+        #Pushbutton Invoeren
+        self.invoeren_button = qw.QPushButton('Invoeren', self)
+        l.addWidget(self.invoeren_button ,0,0)
+        self.invoeren_button.clicked.connect(self.invoeren)
+
+        #combobox periode
+        self.periode_label = qw.QLabel(self)
+        self.periode_label.setText('Periode')
+        l.addWidget(self.periode_label ,1,0)
+
+        self.periode_box = qw.QComboBox(self)
+        for i in range(len(INV_INVOEREN.df_periode)):
+            self.periode_box.addItem(INV_INVOEREN.df_periode[i])
+        l.addWidget(self.periode_box ,1,1)
+
+        #Drop down hoofdniveau
+        self.hoofd_label = qw.QLabel(self)
+        self.hoofd_label.setText('Hoofdniveau')
+        l.addWidget(self.hoofd_label ,2,0)
+
+        self.hoofd_box = qw.QComboBox(self)
+        for i in range(len(INV_INVOEREN.df_hoofd)):
+            self.hoofd_box.addItem(INV_INVOEREN.df_hoofd[i])
+        l.addWidget(self.hoofd_box ,2,1)
+        self.hoofd_box.activated[str].connect(self.sub_box_fill)
+
+        #combobox subniveau
+        self.sub_label = qw.QLabel(self)
+        self.sub_label.setText('Subniveau')
+        l.addWidget(self.sub_label ,3,0)
+
+        self.sub_box = qw.QComboBox(self)
+        l.addWidget(self.sub_box ,3,1)
+        self.sub_box.activated[str].connect(self.kc_box_fill)
+
+        #combobox kosten Categorie
+        self.kc_label = qw.QLabel(self)
+        self.kc_label.setText('Kosten Categorie')
+        l.addWidget(self.kc_label ,4,0)
+
+        self.kc_box = qw.QComboBox(self)
+        l.addWidget(self.kc_box ,4,1)
+
+        #Invoeren totaal bedrag
+        self.bd_label = qw.QLabel(self)
+        self.bd_label.setText('Totaal bedrag')
+        l.addWidget(self.bd_label ,1,2)
+
+        self.bd_line = qw.QLineEdit(self)
+        l.addWidget(self.bd_line ,1,3)
+
+        #Invoeren percentage meenemen
+        self.pm_label = qw.QLabel(self)
+        self.pm_label.setText('Percentage meenemen')
+        l.addWidget(self.pm_label ,2,2)
+
+        self.pm_line = qw.QLineEdit(self)
+        self.pm_line.setText('1.0')
+        l.addWidget(self.pm_line ,2,3)
+
+        #Invoeren rente percentage
+        self.rp_label = qw.QLabel(self)
+        self.rp_label.setText('Rente Percentage')
+        l.addWidget(self.rp_label ,3,2)
+
+        self.rp_line = qw.QLineEdit(self)
+        self.rp_line.setText('0.07')
+        l.addWidget(self.rp_line ,3,3)
+
+        #Invoeren afscrhijving percentage
+        self.ap_label = qw.QLabel(self)
+        self.ap_label.setText('Afschrijvingsperiode')
+        l.addWidget(self.ap_label ,4,2)
+
+        self.ap_line = qw.QLineEdit(self)
+        l.addWidget(self.ap_line ,4,3)
+
+        #Omschrijving invoeren
+        self.oms_label = qw.QLabel(self)
+        self.oms_label.setText('Investering Omschrijving')
+        l.addWidget(self.oms_label ,5,2)
+
+        self.oms_line = qw.QLineEdit(self)
+        l.addWidget(self.oms_line ,5,3)
+
+        self.show()
+
+    #Vullen sub_Box
+    def sub_box_fill(self, hn):
+        self.sub_box.clear
+        sql_sub_box = "select sn.Omschrijving as Omschrijving \
+                           from Subniveau sn \
+                           inner join Hoofdniveau_Omschrijving hn on hn.Hoofdniveau_ID = sn.Ouder_hoofdniveau \
+		           where hn.Omschrijving = '" + str(hn) + "'"
+        df_sub_box = pd.read_sql(sql_sub_box, INV_INVOEREN.cnxn)
+        df_sub_box = df_sub_box['Omschrijving']
+        for i in range(len(df_sub_box)):
+            self.sub_box.addItem(df_sub_box[i])
+
+    #Vullen kc_box
+    def kc_box_fill(self, sn):
+        self.kc_box.clear
+        sql_kc_box = "select Categorie_Omschrijving\
+                             from Kosten_Categorie as kc\
+                             inner join Subniveau as sn on sn.Subniveau_ID = kc.Niveau\
+                             where sn.Omschrijving = '" + str(sn) + "'"
+        df_kc_box = pd.read_sql(sql_kc_box, INV_INVOEREN.cnxn)
+        df_kc_box = df_kc_box['Categorie_Omschrijving']
+        for i in range(len(df_kc_box)):
+            self.kc_box.addItem(df_kc_box[i])
+
+    #Invoeren Investering
+    def invoeren(self):
+        cursor = GUI.cnxn.cursor()
+        
+        omschrijving = self.oms_line.text()
+        categorie = self.kc_box.currentText()
+        periode = self.periode_box.currentText()
+        inv_afschrijving = self.ap_line.text()
+        inv_afschrijving = inv_afschrijving.replace(',', '.')
+        rente = self.rp_line.text()
+        rente = rente.replace(',', '.')
+        bedrag = self.bd_line.text()
+        bedrag = bedrag.replace(',', '.')
+        per_meenemen = self.pm_line.text()
+        per_meenemen = per_meenemen.replace(',' , '.')
+
+        params = (str(omschrijving), str(categorie), str(periode), str(inv_afschrijving), str(rente), str(bedrag), str(per_meenemen))
+        cursor.execute("{CALL invoeren_investering (?,?,?,?,?,?,?)}",params)
+        cursor.commit()
+
+        self.close()
+
+
+
+
 
             
 
