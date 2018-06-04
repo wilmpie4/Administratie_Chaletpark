@@ -1,6 +1,6 @@
 USE [master]
 GO
-/****** Object:  Database [Rihend]    Script Date: 28-5-2018 17:33:39 ******/
+/****** Object:  Database [Rihend]    Script Date: 4-6-2018 16:24:06 ******/
 CREATE DATABASE [Rihend]
  CONTAINMENT = NONE
  ON  PRIMARY 
@@ -97,7 +97,7 @@ ALTER DATABASE SCOPED CONFIGURATION FOR SECONDARY SET QUERY_OPTIMIZER_HOTFIXES =
 GO
 USE [Rihend]
 GO
-/****** Object:  Table [dbo].[Facturen]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Facturen]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -116,7 +116,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Verdelen]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Verdelen]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -132,7 +132,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Hoofdniveau_Omschrijving]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Hoofdniveau_Omschrijving]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -146,7 +146,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Verdelen_Omschrijving]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Verdelen_Omschrijving]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -160,7 +160,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Externe_Kosten]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Externe_Kosten]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -181,24 +181,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Periode]    Script Date: 28-5-2018 17:33:40 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [dbo].[Periode](
-	[Periode_ID] [int] IDENTITY(1,1) NOT NULL,
-	[Omschrijving] [varchar](255) NULL,
-	[Cpi] [numeric](18, 5) NULL,
-	[Cpi_Tov] [int] NULL,
-	[btw] [numeric](18, 5) NULL,
-PRIMARY KEY CLUSTERED 
-(
-	[Periode_ID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-/****** Object:  Table [dbo].[Subniveau]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Subniveau]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -214,7 +197,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Kosten_Categorie]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Kosten_Categorie]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -231,7 +214,24 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Afhankelijke_Kosten]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Periode]    Script Date: 4-6-2018 16:24:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Periode](
+	[Periode_ID] [int] IDENTITY(1,1) NOT NULL,
+	[Omschrijving] [varchar](255) NULL,
+	[Cpi] [numeric](18, 5) NULL,
+	[Cpi_Tov] [int] NULL,
+	[btw] [numeric](18, 5) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Periode_ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Afhankelijke_Kosten]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -246,7 +246,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Afhankelijke_Kosten_Verbanden]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Afhankelijke_Kosten_Verbanden]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -261,7 +261,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[Kosten_Extern_incl_Opslag]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  View [dbo].[Kosten_Extern_incl_Opslag]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -338,7 +338,7 @@ select 	HO.Omschrijving as Hoofd_Omschrijving
 								,Aantal)
 
 GO
-/****** Object:  Table [dbo].[Interne_Kosten]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Interne_Kosten]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -359,7 +359,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[Kosten_Intern_incl_Opslag]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  View [dbo].[Kosten_Intern_incl_Opslag]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -409,7 +409,7 @@ select  HO.Omschrijving as Hoofd_Omschrijving
 								,Percentage_Omschrijving
 								,Aantal)
 GO
-/****** Object:  Table [dbo].[Stroomverbruik_Kosten]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Stroomverbruik_Kosten]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -427,7 +427,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Stroomverbruik_Totaal]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Stroomverbruik_Totaal]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -445,7 +445,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[overzicht_perkwh]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  View [dbo].[overzicht_perkwh]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -472,12 +472,14 @@ select pr.Omschrijving as Periode
 		 inner join periode as pr on pr.Periode_ID = verbruik.Verbruik_Periode
 		 where Verbruik_Totaal > 0
 GO
-/****** Object:  View [dbo].[overzicht_totaal]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  View [dbo].[overzicht_totaal]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-create view [dbo].[overzicht_totaal] as
+
+
+CREATE view [dbo].[overzicht_totaal] as
 with extern as 
 		(select  Hoofd_Omschrijving as Specificatie
 			    ,Periode as Jaar
@@ -491,16 +493,26 @@ with extern as
 			from Kosten_Intern_incl_Opslag
 			group by Hoofd_Omschrijving, Periode)
 
-select intern.Specificatie
-	  ,intern.Jaar
+select case when intern.Specificatie is not null 
+			then intern.Specificatie
+			else extern.Specificatie end as Specificatie
+	  ,case when intern.Jaar is not null 
+			then intern.Jaar
+			else extern.Jaar end as Jaar
 	  ,extern.Extern
 	  ,intern.Intern
-	  ,extern.Extern + intern.Intern as totaal
+	  ,((case when extern.Extern is not null
+			 then extern.Extern
+			 else 0 end)
+			+ 
+		(case when intern.Intern is not null
+			  then intern.Intern
+			  else 0 end)) as totaal
 	 from extern 
-	 inner join intern on  extern.Jaar = intern.Jaar
+	 full join intern on  extern.Jaar = intern.Jaar
 					   and extern.Specificatie = intern.Specificatie
 GO
-/****** Object:  View [dbo].[overzicht_factuur]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  View [dbo].[overzicht_factuur]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -522,7 +534,7 @@ select   FC.Factuur_ID as [Factuur ID]
 
 		  
 GO
-/****** Object:  Table [dbo].[Investering]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Investering]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -545,7 +557,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[overzicht_investeringen]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  View [dbo].[overzicht_investeringen]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -567,7 +579,7 @@ select inv.Investering_ID as [Investering ID]
 		 inner join Verdelen_Omschrijving as vo on vo.Verdelen_Omschrijving_ID = kc.Verdelen_Omschrijving_ID
 		 inner join Periode as pr on pr.periode_Id = inv.Investering_Periode
 GO
-/****** Object:  View [dbo].[overzicht_interne_kosten]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  View [dbo].[overzicht_interne_kosten]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -590,14 +602,15 @@ select   ik.Interne_kosten_ID as [Interne Kosten ID]
 	inner join Verdelen_Omschrijving as vo on vo.Verdelen_Omschrijving_ID = kc.Verdelen_Omschrijving_ID
 	inner join Periode as pr on pr.Periode_ID = ik.Periode_ID
 GO
-/****** Object:  View [dbo].[overzicht_externe_kosten]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  View [dbo].[overzicht_externe_kosten]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+
 /****** Script for SelectTopNRows command from SSMS  ******/
-create view [dbo].[overzicht_externe_kosten] as
-select   ek.Externe_kosten_ID as [Interne Kosten ID]
+CREATE view [dbo].[overzicht_externe_kosten] as
+select   ek.Externe_kosten_ID as [Externe Kosten ID]
 		,kc.Categorie_Omschrijving as [Kosten Categorie]
 		,pr.Omschrijving as [Periode]
 		,ek.Datum_gemaakt as [Datum Gemaakt]
@@ -613,7 +626,7 @@ select   ek.Externe_kosten_ID as [Interne Kosten ID]
 	inner join Verdelen_Omschrijving as vo on vo.Verdelen_Omschrijving_ID = kc.Verdelen_Omschrijving_ID
 	inner join Periode as pr on pr.Periode_ID = ek.Periode_ID
 GO
-/****** Object:  Table [dbo].[Staanplaatsen]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Staanplaatsen]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -632,7 +645,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[overzicht_staanplaats]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  View [dbo].[overzicht_staanplaats]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -649,7 +662,7 @@ select Staanplaats_ID
 			   where pr.Periode_ID = sp.Verkocht_periode_vanaf ) as Verkocht_periode_vanaf
 		from Staanplaatsen sp
 GO
-/****** Object:  Table [dbo].[Stroomverbruik_Verdeeld]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Stroomverbruik_Verdeeld]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -667,7 +680,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Stroomverbruik_Niveau]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Stroomverbruik_Niveau]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -683,7 +696,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[overzicht_stroomverbruik]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  View [dbo].[overzicht_stroomverbruik]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -702,7 +715,7 @@ select   sv.Stroomverbruik_Verdeeld_ID
 		 left join Kosten_Categorie as kc on kc.Categorie_ID = sn.Kosten_Categorie_ID
 		 inner join periode as pr on pr.Periode_ID = sv.Periode_ID
 GO
-/****** Object:  Table [dbo].[Stroomverbruik_Kosten_Type]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  Table [dbo].[Stroomverbruik_Kosten_Type]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -716,7 +729,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[overzicht_stroomkosten]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  View [dbo].[overzicht_stroomkosten]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -732,6 +745,113 @@ select  sk.Stroomverbuik_Kosten_ID
 		inner join Stroomverbruik_Kosten_Type as skt on skt.Kosten_Type_ID = sk.Kosten_Type_ID
 		inner join periode as pr on pr.Periode_ID = sk.Periode_ID
 GO
+/****** Object:  View [dbo].[overzicht_subniveau]    Script Date: 4-6-2018 16:24:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE view [dbo].[overzicht_subniveau]
+as
+
+with extern as 
+		(select  Hoofd_Omschrijving as Specificatie
+				,Sub_Omschrijving as Specificatie_Subniveau
+			    ,Periode as Jaar
+				,sum(Bedrag + Opslag_Bedrijfsrisico) as Extern
+			from Kosten_Extern_incl_Opslag
+			group by periode, Hoofd_Omschrijving, Sub_Omschrijving)
+	,intern as
+		(select  Hoofd_Omschrijving as Specificatie
+			    ,Sub_Omschrijving as Specificatie_Subniveau
+				,Periode as Jaar
+				,sum(Bedrag + Opslag_Bedrijfsrisico) as Intern
+			from Kosten_Intern_incl_Opslag
+			group by Hoofd_Omschrijving, Periode, Sub_Omschrijving)
+
+select case when intern.Specificatie is not null 
+			then intern.Specificatie
+			else extern.Specificatie end as Specificatie_Hoofdniveau
+	  ,case when intern.Specificatie_Subniveau is not null
+			then intern.Specificatie_Subniveau
+			else extern.Specificatie_Subniveau end as Specificatie_Subniveau
+	  ,case when intern.Jaar is not null 
+			then intern.Jaar
+			else extern.Jaar end as Jaar
+	  ,extern.Extern
+	  ,intern.Intern
+	  ,((case when extern.Extern is not null
+			 then extern.Extern
+			 else 0 end)
+			+ 
+		(case when intern.Intern is not null
+			  then intern.Intern
+			  else 0 end)) as totaal
+	 from extern 
+	 full join intern on  extern.Jaar = intern.Jaar
+					   and extern.Specificatie = intern.Specificatie
+					   and extern.Specificatie_Subniveau = intern.Specificatie_Subniveau
+
+
+GO
+/****** Object:  View [dbo].[overzicht_kosten_categorie]    Script Date: 4-6-2018 16:24:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+CREATE view [dbo].[overzicht_kosten_categorie]
+as
+
+with extern as 
+		(select  Hoofd_Omschrijving as Specificatie
+				,Sub_Omschrijving as Specificatie_Subniveau
+				,Kosten_Categorie as Kosten_Categorie
+			    ,Periode as Jaar
+				,sum(Bedrag + Opslag_Bedrijfsrisico) as Extern
+			from Kosten_Extern_incl_Opslag
+			group by periode, Hoofd_Omschrijving, Sub_Omschrijving, Kosten_Categorie)
+	,intern as
+		(select  Hoofd_Omschrijving as Specificatie
+			    ,Sub_Omschrijving as Specificatie_Subniveau
+				,Kosten_Categorie as Kosten_Categorie
+				,Periode as Jaar
+				,sum(Bedrag + Opslag_Bedrijfsrisico) as Intern
+			from Kosten_Intern_incl_Opslag
+			group by Hoofd_Omschrijving, Periode, Sub_Omschrijving ,Kosten_Categorie)
+
+select case when intern.Specificatie is not null 
+			then intern.Specificatie
+			else extern.Specificatie end as Specificatie_Hoofdniveau
+	  ,case when intern.Specificatie_Subniveau is not null
+			then intern.Specificatie_Subniveau
+			else extern.Specificatie_Subniveau end as Specificatie_Subniveau
+	  ,case when intern.Kosten_Categorie is not null
+			then intern.Kosten_Categorie
+			else extern.Kosten_Categorie end as Kosten_Categorie
+	  ,case when intern.Jaar is not null 
+			then intern.Jaar
+			else extern.Jaar end as Jaar
+	  ,extern.Extern
+	  ,intern.Intern
+	  ,((case when extern.Extern is not null
+			 then extern.Extern
+			 else 0 end)
+			+ 
+		(case when intern.Intern is not null
+			  then intern.Intern
+			  else 0 end)) as totaal
+	 from extern 
+	 full join intern on  extern.Jaar = intern.Jaar
+					   and extern.Specificatie = intern.Specificatie
+					   and extern.Specificatie_Subniveau = intern.Specificatie_Subniveau
+					   and extern.Kosten_Categorie = intern.Kosten_Categorie
+
+
+GO
 ALTER TABLE [dbo].[Afhankelijke_Kosten_Verbanden]  WITH CHECK ADD FOREIGN KEY([Afhankelijke_Kosten_ID])
 REFERENCES [dbo].[Afhankelijke_Kosten] ([Afhankelijke_Kosten_ID])
 GO
@@ -741,13 +861,348 @@ GO
 ALTER TABLE [dbo].[Kosten_Categorie]  WITH CHECK ADD FOREIGN KEY([Verdelen_Omschrijving_ID])
 REFERENCES [dbo].[Verdelen_Omschrijving] ([Verdelen_Omschrijving_ID])
 GO
-ALTER TABLE [dbo].[Verdelen]  WITH CHECK ADD FOREIGN KEY([Periode_ID])
-REFERENCES [dbo].[Periode] ([Periode_ID])
-GO
 ALTER TABLE [dbo].[Verdelen]  WITH CHECK ADD FOREIGN KEY([Verdelen_Omschrijving_ID])
 REFERENCES [dbo].[Verdelen_Omschrijving] ([Verdelen_Omschrijving_ID])
 GO
-/****** Object:  StoredProcedure [dbo].[rihend_doorrekenen_stroomkosten]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  StoredProcedure [dbo].[aanpassen_periode]    Script Date: 4-6-2018 16:24:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create procedure [dbo].[aanpassen_periode]
+(
+	 @omschrijving varchar(255)
+	,@cpi numeric(18,5)
+	,@btw numeric(18,5)
+)
+as
+update periode 
+set  cpi = @cpi
+	,btw = @btw
+where omschrijving = @omschrijving
+GO
+/****** Object:  StoredProcedure [dbo].[doorrekenen_interne_kosten]    Script Date: 4-6-2018 16:24:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE procedure [dbo].[doorrekenen_interne_kosten] 
+(
+ @ID int
+,@Periode varchar(255)
+)
+as
+-------------------------------------------------------------------------
+declare @Periode_Old int
+declare @Periode_New int
+declare @Aantal_old numeric(18,5)
+declare @Aantal_New numeric(18,5)
+declare @Bedrag money
+declare @Factor_old numeric(18,5)
+declare @Factor_new numeric(18,5)
+declare @Verdelen int
+declare @int int
+declare @cpi numeric(18,5)
+declare @meenemen numeric(18,5)
+declare @categorie int
+
+--------------------------------------------------------------------------
+select @Periode_Old = ik.periode_id 
+	  ,@Aantal_Old = ik.Aantal
+	  ,@Bedrag = ik.Bedrag
+	  ,@Factor_old = vd.Aantal
+	  ,@Verdelen   = vd.Verdelen_Omschrijving_ID
+	  ,@meenemen = ik.Meenemen
+	  ,@categorie = ik.Categorie_ID
+			from Interne_Kosten as ik
+			inner join Kosten_Categorie as kc on kc.Categorie_ID = ik.Categorie_ID
+			inner join Verdelen as vd on vd.Periode_ID = ik.Periode_ID
+									  and vd.Verdelen_Omschrijving_ID = kc.Verdelen_Omschrijving_ID
+			where ik.Interne_kosten_ID = @ID
+
+
+--------------------------------------------------------------------------
+set @Periode_New = (select periode_id 
+								from Periode as pr 
+								where pr.Omschrijving = @Periode)
+
+set @Factor_New = (select aantal
+								from Verdelen as vd
+								where vd.Periode_ID = @Periode_New
+								and   vd.Verdelen_Omschrijving_ID = @Verdelen)
+--------------------------------------------------------------------------
+-- Aantal New
+set @Aantal_New = (@Aantal_old /  @Factor_old) * @Factor_new
+
+
+-- Bedrag New
+set @int = 1
+
+while @int + @periode_old <= @Periode_New
+begin
+set @cpi = (select pr.Cpi from Periode as pr
+						  where Periode_ID = @Periode_Old + @int)
+set @Bedrag = @Bedrag * @cpi
+set @int = @int + 1
+end
+-----------------------------------------------------------------------------
+-- insert statement 
+insert into Interne_Kosten (Categorie_ID, Periode_ID, Meenemen, Aantal, Bedrag)
+values (@categorie, @Periode_New, @meenemen, @Aantal_New, @Bedrag)
+
+-----------------------------------------------------------------------------
+GO
+/****** Object:  StoredProcedure [dbo].[doorrekenen_investering]    Script Date: 4-6-2018 16:24:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+CREATE procedure [dbo].[doorrekenen_investering]
+(
+   @inv_periode varchar(255)
+  ,@inv_investering_id varchar(255)
+)
+as
+
+declare @Periode int
+declare @Investering_ID int
+declare @Categorie_ID int
+declare @Investering_Periode int
+declare @Investering_Afschrijving int
+declare @Bedrag_Inc Money
+declare @Bedrag_Exc Money
+declare @int int
+declare @cpi numeric(18,5)
+declare @Type_kosten varchar(255)
+
+set @Periode = (select periode_Id from periode where omschrijving  = @inv_periode)
+
+select   @Investering_ID = inv.Investering_ID
+		,@Categorie_ID = inv.Categorie_ID
+		,@Investering_Periode = inv.Investering_Periode
+		,@Investering_Afschrijving = inv.Investering_Afschrijving
+		,@Bedrag_Inc = inv.Bedrag_Inc
+		,@Bedrag_Exc = inv.Bedrag_Exc
+		,@Type_kosten = kc.Type_kosten
+		from Investering as inv
+		inner join Kosten_Categorie as kc on kc.Categorie_ID = inv.Categorie_ID
+		where inv.Investering_Omschrijving = @inv_investering_id 
+
+
+if @Type_kosten = 'intern'
+begin
+if @Periode = @Investering_Periode
+
+insert into Interne_kosten(Categorie_ID, Periode_ID, Meenemen, Aantal, Bedrag, Investering_ID)
+Values  (@Categorie_ID,@periode, 1, 1,  @Bedrag_Inc + @Bedrag_Exc,@Investering_ID)
+
+if @Periode > @Investering_Periode + @Investering_Afschrijving
+
+select distinct 'nvt' from Investering
+
+if @Periode < @Investering_Periode + @Investering_Afschrijving and @Periode > @Investering_Periode
+begin
+set @int = 1
+while @int + @Investering_Periode <= @Periode
+begin
+select @Cpi = Cpi from periode as pr
+	   where pr.Periode_ID = @int + @Investering_Periode
+set @Bedrag_Inc = @Bedrag_Inc * @Cpi
+set @Bedrag_Exc = @Bedrag_Exc * @Cpi
+set @int = @int + 1
+end
+
+insert into Interne_kosten(Categorie_ID, Periode_ID, Meenemen, Aantal, Bedrag, Investering_ID)
+Values  (@Categorie_ID,@periode, 1, 1,  @Bedrag_Inc + @Bedrag_Exc ,@Investering_ID)
+end
+end
+
+if @Type_kosten = 'extern'
+begin
+if @Periode = @Investering_Periode
+
+insert into Externe_kosten(Categorie_ID, Periode_ID, Meenemen, Aantal, Bedrag, Investering_ID)
+Values  (@Categorie_ID,@periode, 1, 1,  @Bedrag_Inc + @Bedrag_Exc,@Investering_ID)
+
+if @Periode > @Investering_Periode + @Investering_Afschrijving
+
+select distinct 'nvt' from Investering
+
+if @Periode < @Investering_Periode + @Investering_Afschrijving and @Periode > @Investering_Periode
+begin
+set @int = 1
+while @int + @Investering_Periode <= @Periode
+begin
+select @Cpi = Cpi from periode as pr
+	   where pr.Periode_ID = @int + @Investering_Periode
+set @Bedrag_Inc = @Bedrag_Inc * @Cpi
+set @Bedrag_Exc = @Bedrag_Exc * @Cpi
+set @int = @int + 1
+end
+
+insert into Externe_kosten(Categorie_ID, Periode_ID, Meenemen, Aantal, Bedrag, Investering_ID)
+Values  (@Categorie_ID,@periode, 1, 1,  @Bedrag_Inc + @Bedrag_Exc ,@Investering_ID)
+end
+end
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[invoegen_periode]    Script Date: 4-6-2018 16:24:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE procedure [dbo].[invoegen_periode]
+(
+	 @aantalperiodes int
+)
+as
+
+declare @int int 
+set @int = 1
+
+while @int < @aantalperiodes
+begin
+insert into periode(omschrijving, cpi, cpi_tov, btw)
+values( convert(varchar(255),(select convert(int, max(omschrijving)) + 1 from periode))
+	   ,1
+	   ,(select max(omschrijving) from periode)
+	   ,1.06
+	   )
+set @int = @int + 1 
+end
+GO
+/****** Object:  StoredProcedure [dbo].[invoeren_facturen]    Script Date: 4-6-2018 16:24:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create procedure [dbo].[invoeren_facturen]
+(
+ @Categorie varchar(255)
+,@Periode varchar(255)
+,@Meenemen numeric(18,5)
+,@Extern_Fact varchar(255)
+,@Factuur_datum date
+,@Bedrag money
+)
+as
+with Cat as (select kc.Categorie_ID from Kosten_Categorie as kc
+						  where kc.Categorie_Omschrijving = @Categorie)
+	,Per as (select pr.Periode_ID from Periode as pr
+					   where pr.Omschrijving = @Periode)
+
+insert into facturen (Categorie_ID, Periode_ID, Meenemen, Extern_Factuur_nummer, Factuur_datum, Bedrag)
+values ((select Categorie_ID from Cat),(select Periode_ID from Per), @Meenemen, @Extern_Fact, @Factuur_datum, @Bedrag)
+GO
+/****** Object:  StoredProcedure [dbo].[invoeren_investering]    Script Date: 4-6-2018 16:24:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE procedure [dbo].[invoeren_investering]
+(
+ @Omschrijving varchar(255)
+,@Categorie varchar(255)
+,@Periode varchar(255)
+,@investering_Afschrijving int
+,@Rente_Investering numeric(18,5)
+,@Bedrag_tot money
+,@percentage numeric(18,5)
+)
+as
+with Cat as (select kc.Categorie_ID from Kosten_Categorie as kc
+				   where kc.Categorie_Omschrijving = @Categorie)
+	,Per as (select pr.Periode_ID from Periode as pr
+					where pr.Omschrijving = @Periode)
+
+insert into Investering (Investering_Omschrijving, Categorie_ID, Investering_Periode, Investering_Afschrijving, Rente_Investering, Bedrag_tot, Meenemen)
+values (@Omschrijving, (select Categorie_ID from Cat), (select Periode_id from Per), @investering_Afschrijving, @Rente_Investering, @Bedrag_tot, @percentage)
+GO
+/****** Object:  StoredProcedure [dbo].[invoeren_stroomkosten]    Script Date: 4-6-2018 16:24:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+/****** Script for SelectTopNRows command from SSMS  ******/
+CREATE procedure [dbo].[invoeren_stroomkosten] 
+		(
+		 @Periode varchar(255)
+		,@Kosten_Type_Omschrijving varchar(255)
+		,@Aantal numeric(18,5)
+		,@Bedrag money
+		)
+as 
+with per as (select pr.periode_Id as periode_id 
+					from Periode as pr
+					where pr.omschrijving = @Periode )
+	,skt as (select skt.Kosten_Type_ID
+					from Stroomverbruik_Kosten_Type as skt
+					where skt.Kosten_Type_Omschrijving = @Kosten_Type_Omschrijving)
+
+update Stroomverbruik_Kosten 
+set Aantal = @Aantal
+   ,Bedrag = @Bedrag
+where Periode_ID = (select per.periode_id from per)
+and   Kosten_Type_ID = (select skt.Kosten_Type_ID from skt)
+GO
+/****** Object:  StoredProcedure [dbo].[invoeren_stroomverbruik_totaal]    Script Date: 4-6-2018 16:24:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create procedure [dbo].[invoeren_stroomverbruik_totaal]
+(
+	 @Stroomverbruik_Niveau varchar(255)
+	,@Periode varchar(255)
+	,@Periode_Begin numeric(18,5)
+	,@Periode_Eind  numeric(18,5)
+)
+as
+with svn as (select svn.Stroomverbruik_niveau_ID from Stroomverbruik_Niveau as svn
+					  where svn.Stroomverbruik_niveau_Oms = @Stroomverbruik_Niveau)
+	,pr  as (select pr.Periode_ID from Periode as pr
+								   where pr.Omschrijving = @Periode)
+
+update Stroomverbruik_Totaal
+set Periode_Begin = @Periode_Begin
+   ,Periode_Eind  = @Periode_Eind
+where Periode_ID = (select pr.Periode_ID from pr)
+and   Stroomverbruik_niveau_ID = (select svn.Stroomverbruik_niveau_ID from svn)
+GO
+/****** Object:  StoredProcedure [dbo].[invoeren_stroomverbruik_verdeeld]    Script Date: 4-6-2018 16:24:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create procedure [dbo].[invoeren_stroomverbruik_verdeeld]
+(
+	 @Stroomverbruik_Niveau varchar(255)
+	,@Periode varchar(255)
+	,@Periode_Begin numeric(18,5)
+	,@Periode_Eind  numeric(18,5)
+)
+as
+with svn as (select svn.Stroomverbruik_niveau_ID from Stroomverbruik_Niveau as svn
+					  where svn.Stroomverbruik_niveau_Oms = @Stroomverbruik_Niveau)
+	,pr  as (select pr.Periode_ID from Periode as pr
+								   where pr.Omschrijving = @Periode)
+
+update Stroomverbruik_Verdeeld
+set Periode_Begin = @Periode_Begin
+   ,Periode_Eind  = @Periode_Eind
+where Periode_ID = (select pr.Periode_ID from pr)
+and   Stroomverbruik_niveau_ID = (select svn.Stroomverbruik_niveau_ID from svn)
+GO
+/****** Object:  StoredProcedure [dbo].[rihend_doorrekenen_stroomkosten]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -775,7 +1230,7 @@ select KC.Categorie_ID, pr.Periode_ID, 1, STV.verbruik, SKK.Prijs_per_KWH  from 
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[update_staanplaatsen]    Script Date: 28-5-2018 17:33:40 ******/
+/****** Object:  StoredProcedure [dbo].[update_staanplaatsen]    Script Date: 4-6-2018 16:24:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
