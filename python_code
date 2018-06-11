@@ -379,7 +379,14 @@ class GUI(qw.QMainWindow):
         self.dialog.show()
 
     def verlichting_invoeren(self):
-        pass
+        sql_verl = "select distinct Armaturen_Categorie \
+                           ,'0' as Armaturen_Aantal \
+                           ,'0' as Armaturen_Totaal \
+                        from overzicht_terreinverlichting"
+        df_verl = pd.read_sql(sql_verl, GUI.cnxn)
+
+        self.dialog = STR_INVOEREN(df_verl, 'Verlichting')
+        self.dialog.show()
     
     #periode
     def periode_overzicht(self):
@@ -446,7 +453,16 @@ class GUI(qw.QMainWindow):
                                     and [Periode] = '" + str(periode) + "'"
                 df_kcs = pd.read_sql(sql_kcs, GUI.cnxn)
                 self.create_table(df_kcs)
-
+        if str(self.table.horizontalHeaderItem(4).text()) == 'Specificatie_Investering_ID':
+            if column == 4:
+                inv = self.table.item(row,column).text()
+                periode = self.table.item(row,1).text()
+                sql_inv = "select * \
+                                    from overzicht_investeringen \
+                                    where [Investering ID] = " + str(inv) 
+                df_inv = pd.read_sql(sql_inv, GUI.cnxn)
+                self.create_table(df_inv)
+                                    
 # Staanplaatsen class
 class STAANPL(qw.QWidget):
     # cls var
@@ -739,7 +755,17 @@ class STR_INVOEREN(qw.QWidget):
 
                 params = (str(omschrijving), str(periode), str(Periode_Begin), str(Periode_Eind))
                 cursor.execute("{CALL invoeren_stroomverbruik_totaal (?,?,?,?)}",params)
-                cursor.commit()    
+                cursor.commit()
+
+        if self.type_omschrijving == 'Verlichting':
+            for j in range(self.table.rowCount()):
+                omschrijving = str(self.table.item(j,0).text())
+                aantal = str(self.table.item(j,1).text())
+                totaal = str(self.table.item(j,2).text())
+
+                params = (str(periode), str(omschrijving), str(aantal), str(totaal))
+                cursor.execute("{CALL invoeren_verlichting (?,?,?,?)}",params)
+                cursor.commit()
             
         self.close()
         
