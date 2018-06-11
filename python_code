@@ -94,6 +94,10 @@ class GUI(qw.QMainWindow):
         int_kosten_menu.addAction(int_kosten_delete)
         int_kosten_delete.triggered.connect(self.int_kosten_delete)
 
+        int_kosten_doorrekenen = qw.QAction('Doorrekenen', self)
+        int_kosten_menu.addAction(int_kosten_doorrekenen)
+        int_kosten_doorrekenen.triggered.connect(self.int_kosten_doorrekenen)
+
         #ext_kosten_menu
         ext_kosten_overzicht = qw.QAction('Overzicht', self)
         ext_kosten_menu.addAction(ext_kosten_overzicht)
@@ -133,6 +137,10 @@ class GUI(qw.QMainWindow):
         stroom_menu.addAction(stroom_doorrekenen)
         stroom_doorrekenen.triggered.connect(self.stroom_doorrekenen)
 
+        verlichting_overzicht = qw.QAction('Verlichting', self)
+        stroom_menu.addAction(verlichting_overzicht)
+        verlichting_overzicht.triggered.connect(self.verlichting_overzicht)
+
         #stroom_menu_invoeren
 
         stroom_invoeren_tot = qw.QAction('Stroom verbruik totaal', self)
@@ -146,6 +154,10 @@ class GUI(qw.QMainWindow):
         stroom_invoeren_kost = qw.QAction('Stroom kosten', self)
         stroom_menu_invoeren.addAction(stroom_invoeren_kost)
         stroom_invoeren_kost.triggered.connect(self.stroom_invoeren_kost)
+
+        verlichting_invoeren = qw.QAction('Verlichting', self)
+        stroom_menu_invoeren.addAction(verlichting_invoeren)
+        verlichting_invoeren.triggered.connect(self.verlichting_invoeren)
 
         #periode_menu
         periode_overzicht = qw.QAction('Overzicht', self)
@@ -235,8 +247,6 @@ class GUI(qw.QMainWindow):
         sql_ver_inv = "delete from Investering where Investering_ID =" + str(item)
         cursor.execute(str(sql_ver_inv))
         cursor.commit()
-
-
     
     #int_kosten
     def int_kosten_overzicht(self):
@@ -245,7 +255,8 @@ class GUI(qw.QMainWindow):
         self.create_table(df_int_kosten)       
 
     def int_kosten_invoer(self):
-        pass
+        self.dialog = INTERNE_KOSTEN_INVOEREN()
+        self.dialog.show()
 
     def int_kosten_delete(self):
         sql_int_id = "select Interne_Kosten_ID from Interne_Kosten"
@@ -264,6 +275,10 @@ class GUI(qw.QMainWindow):
         cursor.execute(str(sql_ver_int))
         cursor.commit()
 
+    def int_kosten_doorrekenen(self):
+        self.dialog = INT_DOORREKENEN()
+        self.dialog.show()
+
     #ext_kosten
     def ext_kosten_overzicht(self):
         sql_ext_kosten = "select * from overzicht_externe_kosten order by periode desc"
@@ -271,7 +286,8 @@ class GUI(qw.QMainWindow):
         self.create_table(df_ext_kosten)   
 
     def ext_kosten_invoer(self):
-        pass
+        self.dialog = EXTERNE_KOSTEN_INVOEREN()
+        self.dialog.show()
 
     def ext_kosten_delete(self):
         sql_ext_id = "select Externe_Kosten_ID from Externe_Kosten"
@@ -316,9 +332,17 @@ class GUI(qw.QMainWindow):
         df_perkwh = pd.read_sql(sql_perkwh, GUI.cnxn)
         self.create_table(df_perkwh)
 
+    def verlichting_overzicht(self):
+        sql_vo = "select * from overzicht_terreinverlichting"
+        df_vo = pd.read_sql(sql_vo, GUI.cnxn)
+        self.create_table(df_vo)
+
     def stroom_doorrekenen(self):
         cursor = GUI.cnxn.cursor()
         cursor.execute("{CALL rihend_doorrekenen_stroomkosten}")
+        cursor.commit()
+
+        cursor.execute("{CALL doorrekenen_stroomkosten_terreinverlichting}")
         cursor.commit()
 
     def stroom_invoeren_tot(self):
@@ -353,6 +377,9 @@ class GUI(qw.QMainWindow):
         
         self.dialog = STR_INVOEREN(df_kost, 'Kosten')
         self.dialog.show()
+
+    def verlichting_invoeren(self):
+        pass
     
     #periode
     def periode_overzicht(self):
@@ -409,6 +436,16 @@ class GUI(qw.QMainWindow):
                                  and Jaar = '" + str(periode) + "'"
                 df_kc = pd.read_sql(sql_kc, GUI.cnxn)
                 self.create_table(df_kc)
+        if str(self.table.horizontalHeaderItem(2).text()) == 'Specificatie_Kosten_Categorie':
+            if column == 2:
+                kc = self.table.item(row,column).text()
+                periode = self.table.item(row, column + 1).text()
+                sql_kcs = "select * \
+                                    from overzicht_specificatie_Kosten_Categorie \
+                                    where [Specificatie Kosten Categorie] = '" + str(kc) + "'\
+                                    and [Periode] = '" + str(periode) + "'"
+                df_kcs = pd.read_sql(sql_kcs, GUI.cnxn)
+                self.create_table(df_kcs)
 
 # Staanplaatsen class
 class STAANPL(qw.QWidget):
@@ -813,7 +850,7 @@ class FACT_INVOEREN(qw.QWidget):
 
     #subniveau selectie
     def sub_box_fill(self, hn):
-        self.sub_box.clear
+        self.sub_box.clear()
         #hn = hn.replace("'", "")
         sql_sub_box = "select sn.Omschrijving as Omschrijving \
                            from Subniveau sn \
@@ -846,6 +883,23 @@ class FACT_INVOEREN(qw.QWidget):
 
     # functie invoeren facturen
     def invoeren_facturen(self):
+        cursor = FACT_INVOEREN.cnxn.cursor()
+        
+        for i in range(self.table.rowCount()):
+            kosten_cat = self.table.item(i,0).text()
+            periode = self.table.item(i,1).text()
+            meenemen = self.table.item(i,2).text()
+            meenemen = meenemen.replace(',', '.')
+            fact_nr = self.table.item(i,3).text()
+            fact_nr = fact_nr.replace(',', '.')
+            fact_dat = self.table.item(i,4).text()
+            fact_bedr = self.table.item(i,5).text()
+            fact_bedr = fact_bedr.replace(',', '.')
+
+            params = (str(kosten_cat), str(periode), str(meenemen), str(fact_nr), str(fact_dat), str(fact_bedr))
+            cursor.execute("{CALL invoeren_facturen (?,?,?,?,?,?)}",params)
+            cursor.commit()
+            
         self.close()
         
 
@@ -883,10 +937,6 @@ class INV_DOORREKENEN(qw.QWidget):
                         "Database=Rihend;"
                         "Trusted_Connection=yes;")
 
-    sql_inv = "Select Investering_Omschrijving from Investering"
-    df_inv = pd.read_sql(sql_inv, cnxn)
-    df_inv = df_inv['Investering_Omschrijving']
-
     sql_periode = "Select Omschrijving from Periode"
     df_periode = pd.read_sql(sql_periode, cnxn)
     df_periode = df_periode['Omschrijving']
@@ -910,9 +960,13 @@ class INV_DOORREKENEN(qw.QWidget):
         self.inv_label.setText('Investering')
         l.addWidget(self.inv_label ,1,0)
         
+        sql_inv = "Select Investering_Omschrijving from Investering"
+        df_inv = pd.read_sql(sql_inv, INV_DOORREKENEN.cnxn)
+        df_inv = df_inv['Investering_Omschrijving']
+        
         self.inv_box = qw.QComboBox(self)
-        for i in range(len(INV_DOORREKENEN.df_inv)):
-            self.inv_box.addItem(INV_DOORREKENEN.df_inv[i])
+        for i in range(len(df_inv)):
+            self.inv_box.addItem(df_inv[i])
         l.addWidget(self.inv_box ,1,1)
         
         #Combobox periode
@@ -1062,7 +1116,7 @@ class INV_INVOEREN(qw.QWidget):
 
     #Vullen sub_Box
     def sub_box_fill(self, hn):
-        self.sub_box.clear
+        self.sub_box.clear()
         sql_sub_box = "select sn.Omschrijving as Omschrijving \
                            from Subniveau sn \
                            inner join Hoofdniveau_Omschrijving hn on hn.Hoofdniveau_ID = sn.Ouder_hoofdniveau \
@@ -1105,6 +1159,403 @@ class INV_INVOEREN(qw.QWidget):
         cursor.commit()
 
         self.close()
+
+
+class INT_DOORREKENEN(qw.QWidget):
+    # Add cls Variables here
+    cnxn = odbc.connect("Driver={SQL Server Native Client 11.0};"
+                        "Server=DESKTOP-D3UL9SD;"
+                        "Database=Rihend;"
+                        "Trusted_Connection=yes;")
+    
+    sql_periode = "Select Omschrijving from Periode"
+    df_periode = pd.read_sql(sql_periode, cnxn)
+    df_periode = df_periode['Omschrijving']
+    
+    # Open main window
+    def __init__(self):
+        super().__init__()
+
+        l = qw.QGridLayout(self)
+        
+        self.title = 'Interne Kosten Doorrekenen'
+        self.top = 30
+        self.left = 0
+        self.width = 600
+        self.height = 300
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left,self.top,self.width,self.height)
+
+        #push button voor doorekenen interne kosten
+        self.dr_button = qw.QPushButton('Doorrekenen', self)
+        l.addWidget(self.dr_button ,0,0)
+        self.dr_button.clicked.connect(self.int_doorrekenen)
+
+        #combobox met periode
+        self.pr_label = qw.QLabel(self)
+        self.pr_label.setText('Periode')
+        l.addWidget(self.pr_label ,1,0)
+
+        self.pr_box = qw.QComboBox(self)
+        for i in range(len(INT_DOORREKENEN.df_periode)):
+            self.pr_box.addItem(INT_DOORREKENEN.df_periode[i])
+        l.addWidget(self.pr_box ,1,1)
+
+        #combobox met interne kosten
+        self.ik_label = qw.QLabel(self)
+        self.ik_label.setText('Interne Kosten')
+        l.addWidget(self.ik_label ,2,0)
+
+        sql_ik = 'select Interne_kosten_ID from Interne_Kosten where Investering_ID is null'
+        df_ik = pd.read_sql(sql_ik, INT_DOORREKENEN.cnxn)
+        df_ik = df_ik['Interne_kosten_ID']
+        
+        self.ik_box = qw.QComboBox(self)
+        for i in range(len(df_ik)):
+            self.ik_box.addItem(str(df_ik[i]))
+        l.addWidget(self.ik_box ,2,1)
+
+        self.show()
+
+    #interne kosten doorrekenen
+    def int_doorrekenen(self):
+        cursor = GUI.cnxn.cursor()
+
+        periode = self.pr_box.currentText()
+        int_kosten_id = self.ik_box.currentText()
+        
+        params = (str(int_kosten_id), str(periode))
+        cursor.execute("{CALL doorrekenen_interne_kosten (?,?)}",params)
+        self.close
+
+
+# Externe kosten invoeren Class
+class EXTERNE_KOSTEN_INVOEREN(qw.QWidget):
+    # Add cls Variables here
+    cnxn = odbc.connect("Driver={SQL Server Native Client 11.0};"
+                        "Server=DESKTOP-D3UL9SD;"
+                        "Database=Rihend;"
+                        "Trusted_Connection=yes;")
+    
+    sql_hoofd = "select Omschrijving from Hoofdniveau_Omschrijving"
+    df_hoofd = pd.read_sql(sql_hoofd, cnxn)
+    df_hoofd = df_hoofd['Omschrijving']
+
+    sql_periode = "select Omschrijving from Periode where Periode_ID > 6"
+    df_periode = pd.read_sql(sql_periode, cnxn)
+    df_periode = df_periode['Omschrijving']
+
+    # Open main window
+    def __init__(self):
+        super().__init__()
+
+        l = qw.QGridLayout(self)
+        
+        self.title = 'Externe kosten invoeren'
+        self.top = 30
+        self.left = 0
+        self.width = 600
+        self.height = 300
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left,self.top,self.width,self.height)
+
+        #table
+        self.table = qw.QTableWidget(self)
+        self.table.setRowCount(20)
+        self.table.setColumnCount(5)
+        self.table.setFixedHeight(150)
+        self.table.setFixedWidth(512.5)
+        l.addWidget(self.table ,1,2,3,1)
+        
+        #combobox hoofdniveau
+        self.hoofd_label = qw.QLabel(self)
+        self.hoofd_label.setText('Hoofdniveau')
+        l.addWidget(self.hoofd_label ,1,0)
+        
+        self.hoofd_box = qw.QComboBox(self)
+        for i in range(len(EXTERNE_KOSTEN_INVOEREN.df_hoofd)):
+            self.hoofd_box.addItem(EXTERNE_KOSTEN_INVOEREN.df_hoofd[i])
+        self.hoofd_box.activated[str].connect(self.sub_box_fill)
+        l.addWidget(self.hoofd_box ,1,1)
+        
+        #combobox subniveau
+        self.sub_label = qw.QLabel(self)
+        self.sub_label.setText('Subniveau')
+        l.addWidget(self.sub_label ,3,0)
+        
+        self.sub_box = qw.QComboBox(self)
+        self.sub_box.resize(300,30)
+        l.addWidget(self.sub_box ,3,1)
+        self.sub_box.activated[str].connect(self.create_df_main)
+
+        #combobox periode
+        self.periode_label = qw.QLabel(self)
+        self.periode_label.setText('Periode')
+        l.addWidget(self.periode_label ,2,0)
+        
+        self.periode_box = qw.QComboBox(self)
+        l.addWidget(self.periode_box ,2,1)
+        for i in range(len(EXTERNE_KOSTEN_INVOEREN.df_periode)):
+            self.periode_box.addItem(EXTERNE_KOSTEN_INVOEREN.df_periode[i])
+
+        #button invoeren
+        self.insert_button = qw.QPushButton('Invoeren', self)
+        l.addWidget(self.insert_button ,0,0)
+        self.insert_button.clicked.connect(self.invoeren_externe_kosten)
+
+        #button rij-verwijderen
+        self.remove_button = qw.QPushButton('Rij verwijderen', self)
+        l.addWidget(self.remove_button ,0,2)
+        self.remove_button.clicked.connect(self.remove_row)
+
+
+        self.show()
+
+    #subniveau selectie
+    def sub_box_fill(self, hn):
+        self.sub_box.clear()
+        #hn = hn.replace("'", "")
+        sql_sub_box = "select sn.Omschrijving as Omschrijving \
+                           from Subniveau sn \
+                           inner join Hoofdniveau_Omschrijving hn on hn.Hoofdniveau_ID = sn.Ouder_hoofdniveau \
+		           where hn.Omschrijving = '" + str(hn) + "'"
+        df_sub_box = pd.read_sql(sql_sub_box, EXTERNE_KOSTEN_INVOEREN.cnxn)
+        df_sub_box = df_sub_box['Omschrijving']
+        for i in range(len(df_sub_box)):
+            self.sub_box.addItem(df_sub_box[i])
+            
+    #df_main generen
+    def create_df_main(self, sn):
+        periode = self.periode_box.currentText()
+
+        sn = sn.replace("'", "")
+
+        sql_main = "select    kc.Categorie_Omschrijving as [Categorie omschrijving]\
+                             ,'"+ str(periode) + "'  as [Periode]\
+                             ,1.0 as [Meenemen]\
+                             ,0 as [Aantal]\
+                             ,'"+ str(periode) + "-01-01' as [Datum Gemaakt]\
+                             ,0   as [Bedrag]\
+                         from externe_kosten as ek\
+                         inner join Kosten_Categorie kc on ek.Categorie_ID = kc.Categorie_ID\
+                         inner join Subniveau sn on sn.Subniveau_ID = kc.Niveau\
+                         inner join Periode pr on pr.Periode_ID = ek.Periode_ID\
+                         where sn.Omschrijving = '" + str(sn) + "'\
+                         and   ek.Investering_ID is null"
+        df_main = pd.read_sql(sql_main, EXTERNE_KOSTEN_INVOEREN.cnxn)
+        self.create_table(df_main)
+
+    # functie invoeren facturen
+    def invoeren_externe_kosten(self):
+        cursor = INTERNE_KOSTEN_INVOEREN.cnxn.cursor()
+
+        for i in range(self.table.rowCount()):
+            kosten_cat = self.table.item(i,0).text()
+            periode = self.table.item(i,1).text()
+            meenemen = self.table.item(i,2).text()
+            meenemen = meenemen.replace(',', '.')
+            aantal = self.table.item(i,3).text()
+            aantal = aantal.replace(',', '.')
+            fact_dat = self.table.item(i,4).text()
+            bedrag = self.table.item(i,5).text()
+            bedrag = bedrag.replace(',', '.')
+
+            params = (str(kosten_cat), str(periode), str(fact_dat), str(meenemen), str(aantal), str(bedrag))
+            cursor.execute("{CALL invoeren_externe_kosten (?,?,?,?,?,?)}",params)
+            cursor.commit()
+            
+        self.close()
+
+    #functie verwijderen rij
+    def remove_row(self):
+        self.table.removeRow(self.table.currentRow())
+
+    # creating table from dataframe
+    def create_table(self, df_main):
+        column_header = list(df_main.columns)
+        column = 0
+        self.table.setColumnCount(df_main.shape[1]) 
+        self.table.setRowCount(df_main.shape[0])
+        
+        for i in column_header:
+            row = 0
+            for j in df_main[i]:
+                if str(j) != 'nan':
+                    newitem = qw.QTableWidgetItem(str(j))
+                    self.table.setItem(row, column, newitem)
+                else:
+                    empty = qw.QTableWidgetItem('')
+                    self.table.setItem(row, column, empty)
+                row = row + 1
+            column = column + 1
+        # adjust amount of columns in table
+        self.table.setColumnCount(len(column_header))
+        # add headers to table
+        self.table.setHorizontalHeaderLabels(column_header)
+
+# Interne Kosten Class
+class INTERNE_KOSTEN_INVOEREN(qw.QWidget):
+    # Add cls Variables here
+    cnxn = odbc.connect("Driver={SQL Server Native Client 11.0};"
+                        "Server=DESKTOP-D3UL9SD;"
+                        "Database=Rihend;"
+                        "Trusted_Connection=yes;")
+    
+    sql_hoofd = "select Omschrijving from Hoofdniveau_Omschrijving"
+    df_hoofd = pd.read_sql(sql_hoofd, cnxn)
+    df_hoofd = df_hoofd['Omschrijving']
+
+    sql_periode = "select Omschrijving from Periode where Periode_ID > 6"
+    df_periode = pd.read_sql(sql_periode, cnxn)
+    df_periode = df_periode['Omschrijving']
+
+    # Open main window
+    def __init__(self):
+        super().__init__()
+
+        l = qw.QGridLayout(self)
+        
+        self.title = 'Interne kosten invoeren'
+        self.top = 30
+        self.left = 0
+        self.width = 600
+        self.height = 300
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left,self.top,self.width,self.height)
+
+        #table
+        self.table = qw.QTableWidget(self)
+        self.table.setRowCount(20)
+        self.table.setColumnCount(5)
+        self.table.setFixedHeight(150)
+        self.table.setFixedWidth(512.5)
+        l.addWidget(self.table ,1,2,3,1)
+        
+        #combobox hoofdniveau
+        self.hoofd_label = qw.QLabel(self)
+        self.hoofd_label.setText('Hoofdniveau')
+        l.addWidget(self.hoofd_label ,1,0)
+        
+        self.hoofd_box = qw.QComboBox(self)
+        for i in range(len(INTERNE_KOSTEN_INVOEREN.df_hoofd)):
+            self.hoofd_box.addItem(INTERNE_KOSTEN_INVOEREN.df_hoofd[i])
+        self.hoofd_box.activated[str].connect(self.sub_box_fill)
+        l.addWidget(self.hoofd_box ,1,1)
+        
+        #combobox subniveau
+        self.sub_label = qw.QLabel(self)
+        self.sub_label.setText('Subniveau')
+        l.addWidget(self.sub_label ,3,0)
+        
+        self.sub_box = qw.QComboBox(self)
+        self.sub_box.resize(300,30)
+        l.addWidget(self.sub_box ,3,1)
+        self.sub_box.activated[str].connect(self.create_df_main)
+
+        #combobox periode
+        self.periode_label = qw.QLabel(self)
+        self.periode_label.setText('Periode')
+        l.addWidget(self.periode_label ,2,0)
+        
+        self.periode_box = qw.QComboBox(self)
+        l.addWidget(self.periode_box ,2,1)
+        for i in range(len(INTERNE_KOSTEN_INVOEREN.df_periode)):
+            self.periode_box.addItem(INTERNE_KOSTEN_INVOEREN.df_periode[i])
+
+        #button invoeren
+        self.insert_button = qw.QPushButton('Invoeren', self)
+        l.addWidget(self.insert_button ,0,0)
+        self.insert_button.clicked.connect(self.invoeren_interne_kosten)
+
+        #button rij-verwijderen
+        self.remove_button = qw.QPushButton('Rij verwijderen', self)
+        l.addWidget(self.remove_button ,0,2)
+        self.remove_button.clicked.connect(self.remove_row)
+
+
+        self.show()
+
+    #subniveau selectie
+    def sub_box_fill(self, hn):
+        self.sub_box.clear()
+        #hn = hn.replace("'", "")
+        sql_sub_box = "select sn.Omschrijving as Omschrijving \
+                           from Subniveau sn \
+                           inner join Hoofdniveau_Omschrijving hn on hn.Hoofdniveau_ID = sn.Ouder_hoofdniveau \
+		           where hn.Omschrijving = '" + str(hn) + "'"
+        df_sub_box = pd.read_sql(sql_sub_box, INTERNE_KOSTEN_INVOEREN.cnxn)
+        df_sub_box = df_sub_box['Omschrijving']
+        for i in range(len(df_sub_box)):
+            self.sub_box.addItem(df_sub_box[i])
+            
+    #df_main generen
+    def create_df_main(self, sn):
+        periode = self.periode_box.currentText()
+
+        sn = sn.replace("'", "")
+
+        sql_main = "select    kc.Categorie_Omschrijving as [Categorie omschrijving]\
+                             ,'"+ str(periode) + "'  as [Periode]\
+                             ,1.0 as [Meenemen]\
+                             ,0 as [Aantal]\
+                             ,'"+ str(periode) + "-01-01' as [Datum Gemaakt]\
+                             ,0   as [Bedrag]\
+                         from interne_kosten as ik\
+                         inner join Kosten_Categorie kc on ik.Categorie_ID = kc.Categorie_ID\
+                         inner join Subniveau sn on sn.Subniveau_ID = kc.Niveau\
+                         inner join Periode pr on pr.Periode_ID = ik.Periode_ID\
+                         where sn.Omschrijving = '" + str(sn) + "'\
+                         and   ik.Investering_ID is null"
+        df_main = pd.read_sql(sql_main, INTERNE_KOSTEN_INVOEREN.cnxn)
+        self.create_table(df_main)
+
+    # functie invoeren facturen
+    def invoeren_interne_kosten(self):
+        cursor = INTERNE_KOSTEN_INVOEREN.cnxn.cursor()
+
+        for i in range(self.table.rowCount()):
+            kosten_cat = self.table.item(i,0).text()
+            periode = self.table.item(i,1).text()
+            meenemen = self.table.item(i,2).text()
+            meenemen = meenemen.replace(',', '.')
+            aantal = self.table.item(i,3).text()
+            aantal = aantal.replace(',', '.')
+            fact_dat = self.table.item(i,4).text()
+            bedrag = self.table.item(i,5).text()
+            bedrag = bedrag.replace(',', '.')
+
+            params = (str(kosten_cat), str(periode), str(fact_dat), str(meenemen), str(aantal), str(bedrag))
+            cursor.execute("{CALL invoeren_interne_kosten (?,?,?,?,?,?)}",params)
+            cursor.commit()
+            
+        self.close()
+
+    #functie verwijderen rij
+    def remove_row(self):
+        self.table.removeRow(self.table.currentRow())
+
+    # creating table from dataframe
+    def create_table(self, df_main):
+        column_header = list(df_main.columns)
+        column = 0
+        self.table.setColumnCount(df_main.shape[1]) 
+        self.table.setRowCount(df_main.shape[0])
+        
+        for i in column_header:
+            row = 0
+            for j in df_main[i]:
+                if str(j) != 'nan':
+                    newitem = qw.QTableWidgetItem(str(j))
+                    self.table.setItem(row, column, newitem)
+                else:
+                    empty = qw.QTableWidgetItem('')
+                    self.table.setItem(row, column, empty)
+                row = row + 1
+            column = column + 1
+        # adjust amount of columns in table
+        self.table.setColumnCount(len(column_header))
+        # add headers to table
+        self.table.setHorizontalHeaderLabels(column_header)
 
 
 
